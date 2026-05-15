@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vercel/analytics'],
   css: ['~/assets/css/main.css'],
   components: [
     { path: '~/components/ui', pathPrefix: false },
