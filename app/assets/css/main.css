@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-screen font-sans text-slate-100;
+    background-color: #05070d;
+    background-image:
+      radial-gradient(ellipse at top, rgba(56, 189, 248, 0.18), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(167, 139, 250, 0.12), transparent 55%),
+      linear-gradient(180deg, #05070d 0%, #0a0f1c 50%, #05070d 100%);
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65), transparent 75%);
+  }
+
+  #__nuxt,
+  #__app {
+    position: relative;
+    z-index: 1;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-wide;
+  }
+
+  ::selection {
+    background: rgba(56, 189, 248, 0.35);
+    color: white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(15, 22, 38, 0.5);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.35);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.6);
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/[0.04] backdrop-blur-md border border-white/10;
+  }
+
+  .glass-strong {
+    @apply bg-white/[0.06] backdrop-blur-lg border border-white/15;
+  }
+
+  .glow {
+    @apply shadow-glow;
+  }
+
+  .card-rounded {
+    @apply rounded-2xl w-full;
+  }
+
+  .card-cyber {
+    @apply glass card-rounded shadow-glow-sm transition-shadow hover:shadow-glow;
+  }
+
+  .neon-text {
+    @apply text-neon-blue;
+    text-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+  }
+
+  .neon-text-violet {
+    @apply text-neon-violet;
+    text-shadow: 0 0 16px rgba(167, 139, 250, 0.5);
+  }
+
+  .neon-text-pink {
+    @apply text-neon-pink;
+    text-shadow: 0 0 16px rgba(244, 114, 182, 0.5);
+  }
+
+  .neon-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5
+      font-medium transition-all duration-200 select-none disabled:opacity-50
+      disabled:cursor-not-allowed focus:outline-none focus:ring-2
+      focus:ring-cyan-400/60 focus:ring-offset-2 focus:ring-offset-ink-900;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-glow
+      hover:from-cyan-400 hover:to-blue-500 hover:shadow-glow-lg active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn glass text-slate-100 hover:bg-white/[0.08] hover:border-cyan-300/30;
+  }
+
+  .btn-danger {
+    @apply btn bg-rose-600/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600/30;
+  }
+
+  .input {
+    @apply w-full rounded-xl bg-ink-800/70 border border-white/10 px-4 py-2.5 text-slate-100
+      placeholder:text-slate-500 outline-none transition-colors
+      focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20;
+  }
+
+  .label {
+    @apply block text-xs font-medium uppercase tracking-wider text-slate-400 mb-1.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-ok {
+    @apply badge bg-emerald-500/15 text-emerald-300 border border-emerald-400/30;
+  }
+
+  .badge-warn {
+    @apply badge bg-amber-500/15 text-amber-200 border border-amber-400/30;
+  }
+
+  .badge-err {
+    @apply badge bg-rose-500/15 text-rose-200 border border-rose-400/30;
+  }
+
+  .badge-info {
+    @apply badge bg-cyan-500/15 text-cyan-200 border border-cyan-400/30;
+  }
+}
+
+@layer utilities {
+  .text-gradient-cyber {
+    background: linear-gradient(90deg, #22d3ee 0%, #38bdf8 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
