@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-  variant?: 'primary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'ghost' | 'danger' | 'success' | 'warn'
   type?: 'button' | 'submit' | 'reset'
   loading?: boolean
   disabled?: boolean
@@ -25,6 +25,10 @@ const variantClass = computed(() => {
       return 'btn-ghost'
     case 'danger':
       return 'btn-danger'
+    case 'success':
+      return 'btn-success'
+    case 'warn':
+      return 'btn-warn'
     default:
       return 'btn-primary'
   }

@@ -2,35 +2,44 @@
 useHead({ title: 'Вхід · Cyberpunk' })
 
 const auth = useAuthStore()
+const profile = useProfileStore()
 const router = useRouter()
 const route = useRoute()
+const { resolveLogin } = useNicknameEmail()
 
 const form = reactive({
-  email: '',
+  login: '',
   password: '',
 })
 const submitting = ref(false)
 const error = ref<string | null>(null)
 
+const destinationAfterLogin = (): string => {
+  const redirect = route.query.redirect as string | undefined
+  if (redirect) return redirect
+  if (profile.isAdmin) return '/manage'
+  if (profile.isApproved) return '/dashboard'
+  return '/pending'
+}
+
 onMounted(async () => {
   await auth.init()
   if (auth.isAuthenticated) {
-    const redirect = (route.query.redirect as string) || '/admin'
-    await router.replace(redirect)
+    await router.replace(destinationAfterLogin())
   }
 })
 
 const onSubmit = async () => {
-  if (!form.email || !form.password) {
-    error.value = 'Введіть email та пароль'
+  if (!form.login || !form.password) {
+    error.value = 'Введіть нік (або email) та пароль'
     return
   }
   submitting.value = true
   error.value = null
   try {
-    await auth.login(form.email.trim(), form.password)
-    const redirect = (route.query.redirect as string) || '/admin'
-    await router.replace(redirect)
+    await auth.login(resolveLogin(form.login), form.password)
+    await profile.fetchMine()
+    await router.replace(destinationAfterLogin())
   }
   catch (e) {
     error.value = e instanceof Error ? e.message : 'Помилка входу'
@@ -46,13 +55,13 @@ const onSubmit = async () => {
     <GlowCard class="w-full max-w-md space-y-5">
       <div class="text-center space-y-1">
         <div class="text-xs uppercase tracking-widest text-cyan-300/80">
-          Адмінка
+          Система активності клану
         </div>
         <h1 class="font-display text-2xl text-gradient-cyber">
           Вхід
         </h1>
         <p class="text-sm text-slate-400">
-          Тільки для адміністраторів клану.
+          Увійдіть за своїм ігровим ніком.
         </p>
       </div>
 
@@ -61,12 +70,13 @@ const onSubmit = async () => {
         @submit.prevent="onSubmit"
       >
         <div>
-          <label class="label">Email</label>
+          <label class="label">Нік у грі</label>
           <input
-            v-model="form.email"
-            type="email"
+            v-model="form.login"
+            type="text"
             class="input"
-            autocomplete="email"
+            autocomplete="username"
+            placeholder="Ваш ігровий нік"
             required
           >
         </div>
@@ -96,6 +106,16 @@ const onSubmit = async () => {
           Увійти
         </BaseButton>
       </form>
+
+      <p class="text-center text-sm text-slate-400">
+        Ще немає акаунта?
+        <NuxtLink
+          to="/register"
+          class="text-cyan-300 hover:text-cyan-200 transition-colors"
+        >
+          Зареєструватися
+        </NuxtLink>
+      </p>
     </GlowCard>
   </div>
 </template>

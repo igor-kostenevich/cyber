@@ -26,6 +26,9 @@ export function useSupabaseErrorMessage() {
       case '23514':
         return 'Дані не відповідають правилам бази (наприклад, недопустимий статус).'
       case '42501':
+        if (e?.message && !e.message.includes('permission denied')) {
+          return e.message
+        }
         return 'Недостатньо прав для цієї дії.'
       case 'PGRST116':
         return 'Запис не знайдено або він недоступний.'

@@ -1,4 +1,6 @@
-export default defineNuxtPlugin(async () => {
+export default defineNuxtPlugin(() => {
+  // Ініціалізуємо сесію у фоні, щоб не блокувати монтування застосунку.
+  // Middleware (auth/approved/admin) самі чекають auth.init() там, де це потрібно.
   const auth = useAuthStore()
-  await auth.init()
+  void auth.init()
 })

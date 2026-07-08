@@ -1,15 +1,34 @@
 <script setup lang="ts">
 import { useSettingsStore } from '~/stores/settings'
 import { useAuthStore } from '~/stores/auth'
+import { useProfileStore } from '~/stores/profile'
 
 const settings = useSettingsStore()
 const auth = useAuthStore()
+const profile = useProfileStore()
 const route = useRoute()
 const router = useRouter()
 
-const isAdminArea = computed(() => route.path.startsWith('/admin'))
-
 const logoSrc = computed(() => settings.data?.logo_url || '/logo.jpg')
+
+interface NavLink { to: string, label: string }
+
+const navLinks = computed<NavLink[]>(() => {
+  if (!auth.isAuthenticated || !profile.isApproved) return []
+  const links: NavLink[] = [
+    { to: '/dashboard', label: 'Кабінет' },
+    { to: '/r9', label: 'R9' },
+  ]
+  if (profile.isAdmin) {
+    links.push({ to: '/manage', label: 'Адмінка' })
+  }
+  if (profile.isSuperAdmin) {
+    links.push({ to: '/admin', label: 'R9-адмін' })
+  }
+  return links
+})
+
+const isActive = (to: string) => route.path === to
 
 const onLogout = async () => {
   await auth.logout()
@@ -35,30 +54,55 @@ const onLogout = async () => {
             >
             <div class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-tr from-cyan-400/10 via-transparent to-violet-400/10" />
           </div>
-          <div class="leading-tight">
-            <div class="font-display tracking-widest text-sm uppercase text-cyan-300/90">
-              {{ settings.data?.clan_name || 'Cyberpunk' }}
-            </div>
-            <div class="text-xs text-slate-400">
-              {{ settings.data?.title || 'Збір печаток' }}
-            </div>
+          <div class="font-display tracking-widest text-sm uppercase text-cyan-300/90">
+            {{ settings.data?.clan_name || 'Cyberpunk' }}
           </div>
         </NuxtLink>
 
         <ClientOnly>
-          <div
-            v-if="isAdminArea && auth.isAuthenticated"
-            class="flex items-center gap-3"
-          >
-            <span class="hidden sm:inline text-xs text-slate-400">
-              {{ auth.user?.email }}
-            </span>
-            <button
-              class="btn-ghost text-sm py-2 px-4"
-              @click="onLogout"
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <nav
+              v-if="navLinks.length"
+              class="flex items-center gap-1"
             >
-              Вийти
-            </button>
+              <NuxtLink
+                v-for="link in navLinks"
+                :key="link.to"
+                :to="link.to"
+                class="px-2.5 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors"
+                :class="isActive(link.to)
+                  ? 'text-cyan-200 bg-white/[0.06]'
+                  : 'text-slate-300 hover:text-cyan-100 hover:bg-white/5'"
+              >
+                {{ link.label }}
+              </NuxtLink>
+            </nav>
+
+            <template v-if="auth.isAuthenticated">
+              <span class="hidden md:inline text-xs text-slate-400 max-w-[10rem] truncate">
+                {{ profile.data?.nickname || auth.user?.email }}
+              </span>
+              <button
+                class="btn-ghost text-xs sm:text-sm py-2 px-3 sm:px-4"
+                @click="onLogout"
+              >
+                Вийти
+              </button>
+            </template>
+            <template v-else>
+              <NuxtLink
+                to="/login"
+                class="btn-ghost text-xs sm:text-sm py-2 px-3 sm:px-4"
+              >
+                Увійти
+              </NuxtLink>
+              <NuxtLink
+                to="/register"
+                class="btn-primary text-xs sm:text-sm py-2 px-3 sm:px-4"
+              >
+                Реєстрація
+              </NuxtLink>
+            </template>
           </div>
         </ClientOnly>
       </div>
@@ -72,8 +116,7 @@ const onLogout = async () => {
       <div class="container-page text-center text-xs text-slate-500">
         <div class="neon-divider mb-4 max-w-xs mx-auto" />
         <p>
-          © {{ new Date().getFullYear() }} {{ settings.data?.clan_name || 'Cyberpunk' }} —
-          трекер прогресу збору печаток
+          © {{ new Date().getFullYear() }} {{ settings.data?.clan_name || 'Cyberpunk' }} · CyberPW
         </p>
       </div>
     </footer>

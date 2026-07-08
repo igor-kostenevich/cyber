@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   components: [
     { path: '~/components/ui', pathPrefix: false },
+    { path: '~/components/activity', pathPrefix: false },
     '~/components',
   ],
   app: {

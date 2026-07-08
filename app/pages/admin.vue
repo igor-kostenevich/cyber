@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'auth',
+  middleware: 'super-admin',
 })
 
 useHead({ title: 'Адмінка · Cyberpunk' })
