@@ -115,25 +115,14 @@ const onSubmit = async () => {
     >
       <div>
         <label class="label">Учасник</label>
-        <select
+        <BaseSelect
           v-model="form.participant_id"
-          class="input"
-          required
-        >
-          <option
-            value=""
-            disabled
-          >
-            — оберіть учасника —
-          </option>
-          <option
-            v-for="p in approvedList"
-            :key="p.id"
-            :value="p.id"
-          >
-            {{ p.nickname }}{{ p.real_name ? ` · ${p.real_name}` : '' }}
-          </option>
-        </select>
+          placeholder="— оберіть учасника —"
+          :options="approvedList.map((p) => ({
+            value: p.id,
+            label: p.nickname + (p.real_name ? ` · ${p.real_name}` : ''),
+          }))"
+        />
       </div>
 
       <div class="grid grid-cols-2 gap-3">

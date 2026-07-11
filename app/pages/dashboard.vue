@@ -55,6 +55,42 @@ const availableBalance = computed(() =>
 const actionError = ref<string | null>(null)
 const submittingId = ref<string | null>(null)
 
+const displayName = computed(() =>
+  profile.data?.display_name || profile.data?.nickname || '…',
+)
+
+const editingName = ref(false)
+const editNameValue = ref('')
+const editNameError = ref<string | null>(null)
+const savingName = ref(false)
+
+function startEditName() {
+  editNameValue.value = profile.data?.display_name || profile.data?.nickname || ''
+  editNameError.value = null
+  editingName.value = true
+}
+
+async function saveEditName() {
+  if (!editNameValue.value.trim()) return
+  savingName.value = true
+  editNameError.value = null
+  try {
+    await profile.updateDisplayName(editNameValue.value)
+    editingName.value = false
+  }
+  catch (e) {
+    editNameError.value = e instanceof Error ? e.message : 'Помилка збереження'
+  }
+  finally {
+    savingName.value = false
+  }
+}
+
+function cancelEditName() {
+  editingName.value = false
+  editNameError.value = null
+}
+
 const queueTotalsByReward = computed(() => requests.queueTotalsByReward)
 
 const refresh = async () => {
@@ -92,8 +128,63 @@ const onRequest = async (rewardId: string, qty: number) => {
       <div class="text-xs uppercase tracking-widest text-cyan-300/80">
         Кабінет гравця
       </div>
-      <h1 class="font-display text-2xl md:text-3xl text-gradient-cyber">
-        Привіт, {{ showStats ? profile.data?.nickname : '…' }}
+
+      <div
+        v-if="showStats && editingName"
+        class="mt-1 flex items-center gap-2 flex-wrap"
+      >
+        <input
+          v-model="editNameValue"
+          class="input font-display text-2xl md:text-3xl py-1 px-3 max-w-xs"
+          autofocus
+          @keyup.enter="saveEditName"
+          @keyup.escape="cancelEditName"
+        >
+        <BaseButton
+          :loading="savingName"
+          @click="saveEditName"
+        >
+          Зберегти
+        </BaseButton>
+        <BaseButton
+          variant="ghost"
+          @click="cancelEditName"
+        >
+          Скасувати
+        </BaseButton>
+        <p
+          v-if="editNameError"
+          class="w-full text-xs text-rose-400"
+        >
+          {{ editNameError }}
+        </p>
+      </div>
+
+      <h1
+        v-else
+        class="font-display text-2xl md:text-3xl text-gradient-cyber"
+      >
+        Привіт,
+        <template v-if="showStats">
+          <button
+            class="group inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
+            title="Редагувати імʼя"
+            @click="startEditName"
+          >
+            <span class="neon-text">{{ displayName }}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="h-4 w-4 text-cyan-400/60 group-hover:text-cyan-300 transition-colors shrink-0 mb-0.5"
+            >
+              <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+            </svg>
+          </button>
+        </template>
+        <template v-else>
+          <span>…</span>
+        </template>
       </h1>
     </header>
 

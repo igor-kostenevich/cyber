@@ -7,6 +7,11 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'sm',
 })
 
+const uid = useId()
+const strokeId = `cp-s-${uid}`
+const fillId = `cp-f-${uid}`
+const glowId = `cp-g-${uid}`
+
 const sizeClass = computed(() => {
   switch (props.size) {
     case 'xs': return 'h-3 w-3'
@@ -27,9 +32,9 @@ const sizeClass = computed(() => {
   >
     <path
       d="M12 2.5L19.5 7v10L12 21.5 4.5 17V7L12 2.5Z"
-      stroke="url(#cyber-point-stroke)"
+      :stroke="`url(#${strokeId})`"
       stroke-width="1.5"
-      fill="url(#cyber-point-fill)"
+      :fill="`url(#${fillId})`"
     />
     <path
       d="M9.5 8.5h3.2c1.5 0 2.4.8 2.4 2s-.9 2-2.4 2H11v2.8"
@@ -42,13 +47,13 @@ const sizeClass = computed(() => {
       cx="12"
       cy="12"
       r="9"
-      stroke="url(#cyber-point-glow)"
+      :stroke="`url(#${glowId})`"
       stroke-width="0.75"
       opacity="0.35"
     />
     <defs>
       <linearGradient
-        id="cyber-point-stroke"
+        :id="strokeId"
         x1="4"
         y1="3"
         x2="20"
@@ -61,7 +66,7 @@ const sizeClass = computed(() => {
         />
       </linearGradient>
       <linearGradient
-        id="cyber-point-fill"
+        :id="fillId"
         x1="6"
         y1="4"
         x2="18"
@@ -74,7 +79,7 @@ const sizeClass = computed(() => {
         />
       </linearGradient>
       <linearGradient
-        id="cyber-point-glow"
+        :id="glowId"
         x1="3"
         y1="12"
         x2="21"

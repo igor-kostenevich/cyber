@@ -99,6 +99,19 @@ export const useProfileStore = defineStore('profile', () => {
     }
   }
 
+  async function updateDisplayName(newName: string): Promise<void> {
+    const client = useAppSupabaseClient()
+    const trimmed = newName.trim()
+    if (!trimmed) throw new Error('Імʼя не може бути порожнім')
+    if (!data.value) throw new Error('Профіль не завантажено')
+
+    const { error: err } = await client.rpc('update_display_name', {
+      p_display_name: trimmed,
+    })
+    if (err) throw err
+    data.value = { ...data.value, display_name: trimmed }
+  }
+
   function clear() {
     data.value = null
     loaded.value = false
@@ -119,6 +132,7 @@ export const useProfileStore = defineStore('profile', () => {
     isSuperAdmin,
     fetchMine,
     register,
+    updateDisplayName,
     clear,
   }
 })

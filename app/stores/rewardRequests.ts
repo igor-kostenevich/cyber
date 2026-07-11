@@ -117,6 +117,12 @@ export const useRewardRequestsStore = defineStore('rewardRequests', () => {
     if (err) throw err
   }
 
+  async function cancel(requestId: string): Promise<void> {
+    const client = useAppSupabaseClient()
+    const { error: err } = await client.rpc('cancel_reward_request', { p_request_id: requestId })
+    if (err) throw err
+  }
+
   return {
     items,
     queueTotalsByReward,
@@ -138,5 +144,6 @@ export const useRewardRequestsStore = defineStore('rewardRequests', () => {
     createRequest,
     grant,
     reject,
+    cancel,
   }
 })

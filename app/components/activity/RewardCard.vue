@@ -34,7 +34,7 @@ const maxQty = computed(() => {
   return maxQtyByBalance.value
 })
 
-const canRequest = computed(() => maxQty.value > 0 && !hasActiveRequest.value)
+const canRequest = computed(() => maxQty.value > 0)
 
 const isQueueRequest = computed(() => canRequest.value && !inStock.value)
 
@@ -62,9 +62,6 @@ const submit = () => {
 }
 
 const disabledReason = computed(() => {
-  if (hasActiveRequest.value) {
-    return props.pendingCount === 1 ? 'У заявці' : `У заявках: ${props.pendingCount}`
-  }
   if (maxQtyByBalance.value <= 0) return 'Недостатньо CR'
   return 'Недоступно'
 })

@@ -121,54 +121,79 @@ const reject = (id: string) => run(id, () => requests.reject(id))
       <li
         v-for="req in visible"
         :key="req.id"
-        class="glass rounded-xl px-4 py-3 flex flex-col lg:flex-row lg:items-center gap-3"
+        class="glass rounded-xl p-4 flex flex-col lg:flex-row lg:items-center gap-4"
+        :class="isActiveRewardRequest(req.status) ? 'ring-1 ring-white/5' : 'opacity-70'"
       >
-        <div class="flex-1 min-w-0">
-          <div class="text-sm text-slate-100 flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div class="flex-1 min-w-0 space-y-2">
+          <div class="flex items-start gap-2 flex-wrap">
             <span
               v-if="isActiveRewardRequest(req.status) && requests.getQueuePosition(req.id)"
-              class="badge-warn text-[10px] shrink-0"
+              class="badge-warn text-[10px] shrink-0 mt-0.5"
             >
               #{{ requests.getQueuePosition(req.id) }} у черзі
             </span>
-            <span>
-              {{ req.profile?.nickname ?? '—' }}
-              <span class="text-slate-400">→ {{ req.reward?.name ?? '—' }}</span>
-            </span>
+            <div class="min-w-0">
+              <span class="text-sm font-medium text-slate-100">
+                {{ req.profile?.nickname ?? '—' }}
+              </span>
+              <span class="text-slate-400 text-sm"> → </span>
+              <span class="text-sm text-slate-100">{{ req.reward?.name ?? '—' }}</span>
+            </div>
           </div>
-          <div class="text-xs text-slate-500 flex flex-wrap gap-x-3 mt-1">
-            <span>{{ format(req.created_at) }}</span>
-            <span class="inline-flex items-center gap-1">
-              {{ req.quantity > 1 ? `${req.quantity} ×` : '' }}
-              <CyberPoints
-                :value="req.price_points"
-                icon-size="xs"
-                muted
-              />
+
+          <div class="flex flex-wrap gap-3 text-xs">
+            <span class="text-slate-500">{{ format(req.created_at) }}</span>
+
+            <span class="inline-flex items-center gap-1 text-slate-400">
               <template v-if="req.quantity > 1">
-                (= <CyberPoints
+                {{ req.quantity }} ×
+                <CyberPoints
+                  :value="req.price_points"
+                  icon-size="xs"
+                  muted
+                  class="inline-flex"
+                />
+                <span class="text-slate-600">=</span>
+                <CyberPoints
                   :value="rewardRequestTotalPoints(req)"
                   icon-size="xs"
                   muted
                   class="inline-flex"
-                />)
+                />
+              </template>
+              <template v-else>
+                <CyberPoints
+                  :value="req.price_points"
+                  icon-size="xs"
+                  muted
+                  class="inline-flex"
+                />
               </template>
             </span>
-            <span class="inline-flex items-center gap-1">
+
+            <span class="inline-flex items-center gap-1 text-slate-400">
               Баланс:
               <CyberPoints
                 :value="req.profile?.points_balance ?? 0"
                 icon-size="xs"
                 muted
+                class="inline-flex"
               />
             </span>
-            <span>На складі: {{ req.reward?.stock ?? 0 }}</span>
+
+            <span
+              class="text-slate-400"
+              :class="(req.reward?.stock ?? 0) === 0 ? 'text-rose-400/80' : ''"
+            >
+              На складі: {{ req.reward?.stock ?? 0 }}
+            </span>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <template v-if="isActiveRewardRequest(req.status)">
             <BaseButton
+              size="sm"
               :loading="busyId === req.id"
               :disabled="(req.reward?.stock ?? 0) < req.quantity"
               @click="grant(req.id)"

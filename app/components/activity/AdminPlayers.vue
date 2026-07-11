@@ -153,20 +153,18 @@ const onRoleChange = (p: Profile, role: UserRole) => run(p.id, () => players.set
               <ProfileTwinsExpander :profile-id="p.id" />
             </div>
             <div class="flex items-center gap-2">
-              <select
+              <BaseSelect
                 v-if="profile.isAdmin && p.role !== 'super_admin' && p.id !== profile.data?.id"
-                class="input py-1.5 px-2 text-sm w-auto"
-                :value="p.role === 'admin' ? 'admin' : 'user'"
+                :model-value="p.role === 'admin' ? 'admin' : 'user'"
+                size="sm"
+                class="w-28"
                 :disabled="busyId === p.id"
-                @change="onRoleChange(p, ($event.target as HTMLSelectElement).value as UserRole)"
-              >
-                <option value="user">
-                  Гравець
-                </option>
-                <option value="admin">
-                  Адмін
-                </option>
-              </select>
+                :options="[
+                  { value: 'user', label: 'Гравець' },
+                  { value: 'admin', label: 'Адмін' },
+                ]"
+                @update:model-value="onRoleChange(p, $event as UserRole)"
+              />
               <BaseButton
                 v-if="p.role !== 'super_admin'"
                 variant="danger"
