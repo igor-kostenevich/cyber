@@ -1,6 +1,7 @@
 import type { AsyncStateStatus } from '~/types'
 import type { LeaderboardRow, Profile } from '~/types/activity'
 
+
 interface ParticipationRow {
   profile_id: string
   points_awarded: number
@@ -28,7 +29,7 @@ export function useLeaderboard() {
       const [profilesRes, partsRes] = await Promise.all([
         client
           .from('profiles')
-          .select('id,nickname,display_name,points_balance,role')
+          .select('id,nickname,display_name,points_balance,role,profession')
           .eq('status', 'approved'),
         client
           .from('activity_participants')
@@ -39,7 +40,7 @@ export function useLeaderboard() {
       if (partsRes.error) throw partsRes.error
 
       const profiles = (profilesRes.data ?? []) as Array<
-        Pick<Profile, 'id' | 'nickname' | 'display_name' | 'points_balance' | 'role'>
+        Pick<Profile, 'id' | 'nickname' | 'display_name' | 'points_balance' | 'role' | 'profession'>
       >
       const parts = (partsRes.data ?? []) as unknown as ParticipationRow[]
 
@@ -64,6 +65,7 @@ export function useLeaderboard() {
           nickname: p.nickname,
           display_name: p.display_name,
           role: p.role,
+          profession: p.profession ?? null,
           total_points: p.points_balance,
           month_points: monthPoints.get(p.id) ?? 0,
           events_count: eventCount.get(p.id) ?? 0,

@@ -76,18 +76,19 @@ export const useProfileStore = defineStore('profile', () => {
             nickname,
             display_name: payload.display_name?.trim() || null,
             comment: payload.comment?.trim() || null,
+            profession: payload.profession ?? null,
           },
         },
       })
       if (err) throw err
-      // Профіль створюється тригером handle_new_user(); підвантажуємо його.
       await fetchMine()
 
-      const twinNicks = (payload.twins ?? [])
-        .map((t) => t.trim())
-        .filter(Boolean)
-      if (twinNicks.length > 0) {
-        await useTwinsStore().addMany(twinNicks)
+      const validTwins = (payload.twins ?? []).filter((t) => {
+        const nick = typeof t === 'string' ? t : t.nickname
+        return nick.trim().length > 0
+      })
+      if (validTwins.length > 0) {
+        await useTwinsStore().addMany(validTwins)
       }
 
       status.value = 'success'

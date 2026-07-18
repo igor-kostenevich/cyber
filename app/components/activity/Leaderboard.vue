@@ -89,6 +89,7 @@ watch(
 
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
+            <ProfessionIcon :profession="row.profession" size="xs" />
             <span class="text-sm text-slate-100 truncate">
               {{ row.nickname }}
               <span

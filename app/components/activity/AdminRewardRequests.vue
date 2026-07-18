@@ -133,7 +133,8 @@ const reject = (id: string) => run(id, () => requests.reject(id))
               #{{ requests.getQueuePosition(req.id) }} у черзі
             </span>
             <div class="min-w-0">
-              <span class="text-sm font-medium text-slate-100">
+              <span class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-100">
+                <ProfessionIcon :profession="req.profile?.profession" size="xs" />
                 {{ req.profile?.nickname ?? '—' }}
               </span>
               <span class="text-slate-400 text-sm"> → </span>

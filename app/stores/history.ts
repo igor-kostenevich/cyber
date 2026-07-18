@@ -12,7 +12,7 @@ import {
 const SELECT = `
   *,
   actor:profiles!history_actor_id_fkey(nickname),
-  subject:profiles!history_profile_id_fkey(nickname),
+  subject:profiles!history_profile_id_fkey(nickname,profession),
   reward:rewards(name, image_url)
 `
 

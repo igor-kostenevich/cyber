@@ -93,6 +93,44 @@ function cancelEditName() {
 
 const queueTotalsByReward = computed(() => requests.queueTotalsByReward)
 
+type RewardFilter = 'all' | 'in_stock' | 'affordable'
+type RewardSort = 'default' | 'price_asc' | 'price_desc'
+
+const rewardFilter = ref<RewardFilter>('all')
+const rewardSort = ref<RewardSort>('default')
+
+const rewardFilterOptions = [
+  { value: 'all' as RewardFilter, label: 'Всі' },
+  { value: 'in_stock' as RewardFilter, label: 'На складі' },
+  { value: 'affordable' as RewardFilter, label: 'Доступні мені' },
+]
+
+const rewardSortOptions = [
+  { value: 'default' as RewardSort, label: 'За замовчуванням' },
+  { value: 'price_asc' as RewardSort, label: 'Ціна ↑' },
+  { value: 'price_desc' as RewardSort, label: 'Ціна ↓' },
+]
+
+const filteredRewards = computed(() => {
+  let list = rewards.items.filter((r) => r.is_available)
+
+  if (rewardFilter.value === 'in_stock') {
+    list = list.filter((r) => r.stock > 0)
+  }
+  else if (rewardFilter.value === 'affordable') {
+    list = list.filter((r) => r.price_points <= availableBalance.value)
+  }
+
+  if (rewardSort.value === 'price_asc') {
+    list = [...list].sort((a, b) => a.price_points - b.price_points)
+  }
+  else if (rewardSort.value === 'price_desc') {
+    list = [...list].sort((a, b) => b.price_points - a.price_points)
+  }
+
+  return list
+})
+
 const refresh = async () => {
   await Promise.all([
     rewards.fetchAll(),
@@ -171,6 +209,11 @@ const onRequest = async (rewardId: string, qty: number) => {
             title="Редагувати імʼя"
             @click="startEditName"
           >
+            <ProfessionIcon
+              :profession="profile.data?.profession"
+              size="md"
+              class="mb-0.5"
+            />
             <span class="neon-text">{{ displayName }}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -221,17 +264,46 @@ const onRequest = async (rewardId: string, qty: number) => {
       {{ actionError }}
     </div>
 
-    <AdminTabs
-      v-model="activeTab"
-      :tabs="tabs"
-    />
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <AdminTabs
+        v-model="activeTab"
+        :tabs="tabs"
+      />
+
+      <Transition
+        enter-active-class="transition-all duration-200"
+        enter-from-class="opacity-0 translate-x-2"
+        enter-to-class="opacity-100 translate-x-0"
+        leave-active-class="transition-all duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="activeTab === 'rewards'"
+          class="flex items-center gap-2"
+        >
+          <BaseSelect
+            v-model="rewardFilter"
+            :options="rewardFilterOptions"
+            size="sm"
+            class="w-40"
+          />
+          <BaseSelect
+            v-model="rewardSort"
+            :options="rewardSortOptions"
+            size="sm"
+            class="w-44"
+          />
+        </div>
+      </Transition>
+    </div>
 
     <section
       v-show="activeTab === 'rewards'"
       class="animate-fade-in"
     >
       <RewardGrid
-        :rewards="rewards.items"
+        :rewards="filteredRewards"
         :available-balance="availableBalance"
         :loading="rewards.isLoading && !rewards.hasLoaded"
         :error="rewards.error"

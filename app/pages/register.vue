@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { TwinDraft } from '~/types/activity'
+import { PROFESSIONS } from '~/composables/useProfessions'
+
 useHead({ title: 'Реєстрація · Cyberpunk' })
 
 const auth = useAuthStore()
@@ -11,9 +14,9 @@ const form = reactive({
   password: '',
   passwordConfirm: '',
   display_name: '',
-  comment: '',
+  profession: null as number | null,
 })
-const twinNicks = ref<string[]>([])
+const twins = ref<TwinDraft[]>([])
 const submitting = ref(false)
 const error = ref<string | null>(null)
 
@@ -28,6 +31,10 @@ const onSubmit = async () => {
   error.value = null
   if (!form.nickname.trim()) {
     error.value = 'Введіть ігровий нік'
+    return
+  }
+  if (!form.profession) {
+    error.value = 'Оберіть клас персонажа'
     return
   }
   if (form.password.length < 6) {
@@ -45,8 +52,8 @@ const onSubmit = async () => {
       nickname: form.nickname,
       password: form.password,
       display_name: form.display_name,
-      comment: form.comment,
-      twins: twinNicks.value,
+      profession: form.profession,
+      twins: twins.value,
     })
     await router.replace('/pending')
   }
@@ -89,6 +96,30 @@ const onSubmit = async () => {
             required
           >
         </div>
+
+        <div>
+          <label class="label">Клас персонажа <span class="text-rose-300">*</span></label>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="prof in PROFESSIONS"
+              :key="prof.id"
+              type="button"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl border text-sm transition-all"
+              :class="form.profession === prof.id
+                ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-100'
+                : 'glass border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200'"
+              @click="form.profession = prof.id"
+            >
+              <img
+                :src="prof.icon"
+                :alt="prof.name"
+                class="h-5 w-5 object-contain shrink-0"
+              >
+              <span>{{ prof.name }}</span>
+            </button>
+          </div>
+        </div>
+
         <div>
           <label class="label">Пароль <span class="text-rose-300">*</span></label>
           <input
@@ -120,7 +151,7 @@ const onSubmit = async () => {
           >
         </div>
 
-        <TwinsEditor v-model="twinNicks" />
+        <TwinsEditor v-model="twins" />
 
         <div
           v-if="error"

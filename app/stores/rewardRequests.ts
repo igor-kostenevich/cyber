@@ -9,7 +9,7 @@ import {
 
 const SELECT = `
   *,
-  profile:profiles!reward_requests_profile_id_fkey(id,nickname,display_name,points_balance),
+  profile:profiles!reward_requests_profile_id_fkey(id,nickname,display_name,points_balance,profession),
   reward:rewards(id,name,image_url,stock,price_points)
 `
 

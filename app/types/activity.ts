@@ -24,6 +24,7 @@ export interface Profile {
   role: UserRole
   status: UserStatus
   points_balance: number
+  profession: number | null
   created_at: string
 }
 
@@ -31,7 +32,13 @@ export interface ProfileTwin {
   id: string
   profile_id: string
   nickname: string
+  profession: number | null
   created_at: string
+}
+
+export interface TwinDraft {
+  nickname: string
+  profession: number | null
 }
 
 export interface ActivityAwardParticipant {
@@ -101,7 +108,8 @@ export interface RegisterPayload {
   password: string
   display_name?: string
   comment?: string
-  twins?: string[]
+  profession?: number | null
+  twins?: TwinDraft[]
 }
 
 export interface TabItem {
@@ -119,15 +127,16 @@ export interface LeaderboardRow {
   month_points: number
   events_count: number
   rank: number
+  profession: number | null
 }
 
 export interface RewardRequestView extends RewardRequest {
-  profile?: Pick<Profile, 'id' | 'nickname' | 'display_name' | 'points_balance'> | null
+  profile?: Pick<Profile, 'id' | 'nickname' | 'display_name' | 'points_balance' | 'profession'> | null
   reward?: Pick<Reward, 'id' | 'name' | 'image_url' | 'stock' | 'price_points'> | null
 }
 
 export interface HistoryEntryView extends HistoryEntry {
   actor?: { nickname: string } | null
-  subject?: { nickname: string } | null
+  subject?: { nickname: string, profession?: number | null } | null
   reward?: Pick<Reward, 'name' | 'image_url'> | null
 }

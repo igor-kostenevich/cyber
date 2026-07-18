@@ -63,6 +63,16 @@ export const usePlayersStore = defineStore('players', () => {
     await refreshOne(id)
   }
 
+  async function setProfession(id: string, profession: number | null) {
+    const client = useAppSupabaseClient()
+    const { error: err } = await client.rpc('set_user_profession', {
+      p_profile_id: id,
+      p_profession: profession,
+    })
+    if (err) throw err
+    await refreshOne(id)
+  }
+
   return {
     items,
     status,
@@ -76,5 +86,6 @@ export const usePlayersStore = defineStore('players', () => {
     refreshOne,
     setStatus,
     setRole,
+    setProfession,
   }
 })

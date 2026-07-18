@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Profile, UserRole } from '~/types/activity'
+import { PROFESSIONS } from '~/composables/useProfessions'
 
 const players = usePlayersStore()
 const twins = useTwinsStore()
@@ -35,6 +36,8 @@ const run = async (id: string, fn: () => Promise<void>) => {
 const approve = (p: Profile) => run(p.id, () => players.setStatus(p.id, 'approved'))
 const block = (p: Profile) => run(p.id, () => players.setStatus(p.id, 'blocked'))
 const onRoleChange = (p: Profile, role: UserRole) => run(p.id, () => players.setRole(p.id, role))
+const onProfessionChange = (p: Profile, val: string) =>
+  run(p.id, () => players.setProfession(p.id, val ? Number(val) : null))
 </script>
 
 <template>
@@ -87,8 +90,9 @@ const onRoleChange = (p: Profile, role: UserRole) => run(p.id, () => players.set
             class="glass rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap"
           >
             <div class="min-w-0">
-              <div class="text-sm text-slate-100">
-                {{ p.nickname }}
+              <div class="flex items-center gap-1.5 text-sm text-slate-100">
+                <ProfessionIcon :profession="p.profession" size="sm" />
+                <span>{{ p.nickname }}</span>
                 <span
                   v-if="p.display_name"
                   class="text-xs text-slate-500"
@@ -97,7 +101,10 @@ const onRoleChange = (p: Profile, role: UserRole) => run(p.id, () => players.set
               <div class="text-xs text-slate-500">
                 Реєстрація: {{ format(p.created_at) }}
               </div>
-              <ProfileTwinsExpander :profile-id="p.id" />
+              <ProfileTwinsExpander
+                :profile-id="p.id"
+                editable
+              />
             </div>
             <div class="flex items-center gap-2">
               <BaseButton
@@ -138,9 +145,10 @@ const onRoleChange = (p: Profile, role: UserRole) => run(p.id, () => players.set
             class="glass rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap"
           >
             <div class="min-w-0">
-              <div class="text-sm text-slate-100">
-                {{ p.nickname }}
-                <span class="ml-2 badge-info text-[10px] inline-flex items-center gap-1">
+              <div class="flex items-center gap-1.5 text-sm text-slate-100">
+                <ProfessionIcon :profession="p.profession" size="sm" />
+                <span>{{ p.nickname }}</span>
+                <span class="ml-1 badge-info text-[10px] inline-flex items-center gap-1">
                   <CyberPoints
                     :value="p.points_balance"
                     icon-size="xs"
@@ -150,9 +158,22 @@ const onRoleChange = (p: Profile, role: UserRole) => run(p.id, () => players.set
               <div class="text-xs text-slate-500">
                 {{ roleLabel(p.role) }}
               </div>
-              <ProfileTwinsExpander :profile-id="p.id" />
+              <ProfileTwinsExpander
+                :profile-id="p.id"
+                editable
+              />
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+              <BaseSelect
+                v-if="profile.isAdmin"
+                :model-value="String(p.profession ?? '')"
+                size="sm"
+                class="w-32"
+                :disabled="busyId === p.id"
+                placeholder="— клас —"
+                :options="PROFESSIONS.map((pr) => ({ value: String(pr.id), label: pr.name }))"
+                @update:model-value="onProfessionChange(p, $event as string)"
+              />
               <BaseSelect
                 v-if="profile.isAdmin && p.role !== 'super_admin' && p.id !== profile.data?.id"
                 :model-value="p.role === 'admin' ? 'admin' : 'user'"

@@ -24,7 +24,8 @@ const filtered = computed(() => {
   return props.players.filter(
     (p) =>
       p.nickname.toLowerCase().includes(q)
-      || (p.display_name ?? '').toLowerCase().includes(q),
+      || (p.display_name ?? '').toLowerCase().includes(q)
+      || twins.getForProfile(p.id).some((t) => t.nickname.toLowerCase().includes(q)),
   )
 })
 
@@ -174,6 +175,7 @@ const clearAll = () => emitSelection([])
             <div class="flex items-center justify-between gap-2">
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
+                  <ProfessionIcon :profession="p.profession" size="xs" />
                   <span class="text-sm text-slate-100">{{ p.nickname }}</span>
                   <span
                     v-if="p.display_name"
@@ -215,7 +217,7 @@ const clearAll = () => emitSelection([])
                   :class="chipClass(isTwinSelected(p.id, t.id))"
                   @click="toggleTwin(p.id, t.id)"
                 >
-                  <span class="opacity-50">◦</span>
+                  <ProfessionIcon :profession="t.profession" size="xs" />
                   {{ t.nickname }}
                 </button>
 

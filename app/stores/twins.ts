@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { AsyncStateStatus } from '~/types'
-import type { ProfileTwin } from '~/types/activity'
+import type { ProfileTwin, TwinDraft } from '~/types/activity'
 
 export const useTwinsStore = defineStore('twins', () => {
   const byProfileId = ref<Record<string, ProfileTwin[]>>({})
@@ -63,7 +63,7 @@ export const useTwinsStore = defineStore('twins', () => {
     }
   }
 
-  async function add(nickname: string): Promise<void> {
+  async function add(nickname: string, profession?: number | null): Promise<void> {
     const client = useAppSupabaseClient()
     const profile = useProfileStore()
     const profileId = currentProfileId()
@@ -82,6 +82,7 @@ export const useTwinsStore = defineStore('twins', () => {
     const { error: insertErr } = await client.from('profile_twins').insert({
       profile_id: profileId,
       nickname: trimmed,
+      profession: profession ?? null,
     })
 
     if (insertErr) {
@@ -93,11 +94,44 @@ export const useTwinsStore = defineStore('twins', () => {
     mine.value = getForProfile(profileId)
   }
 
-  async function addMany(nicknames: string[]): Promise<void> {
-    for (const nick of nicknames) {
-      const trimmed = nick.trim()
-      if (trimmed) await add(trimmed)
+  async function addMany(twins: TwinDraft[] | string[]): Promise<void> {
+    for (const t of twins) {
+      if (typeof t === 'string') {
+        const trimmed = t.trim()
+        if (trimmed) await add(trimmed)
+      }
+      else {
+        const trimmed = t.nickname.trim()
+        if (trimmed) await add(trimmed, t.profession)
+      }
     }
+  }
+
+  async function updateProfession(twinId: string, profession: number | null): Promise<void> {
+    const client = useAppSupabaseClient()
+    const profileId = currentProfileId()
+    if (!profileId) throw new Error('Увійдіть у акаунт')
+
+    const { error: err } = await client
+      .from('profile_twins')
+      .update({ profession })
+      .eq('id', twinId)
+      .eq('profile_id', profileId)
+
+    if (err) throw err
+
+    await fetchForProfiles([profileId])
+    mine.value = getForProfile(profileId)
+  }
+
+  async function adminUpdateTwinProfession(twinId: string, profession: number | null, ownerProfileId: string): Promise<void> {
+    const client = useAppSupabaseClient()
+    const { error: err } = await client.rpc('admin_set_twin_profession', {
+      p_twin_id: twinId,
+      p_profession: profession,
+    })
+    if (err) throw err
+    await fetchForProfiles([ownerProfileId])
   }
 
   async function remove(twinId: string): Promise<void> {
@@ -128,6 +162,8 @@ export const useTwinsStore = defineStore('twins', () => {
     fetchMine,
     add,
     addMany,
+    updateProfession,
+    adminUpdateTwinProfession,
     remove,
   }
 })
